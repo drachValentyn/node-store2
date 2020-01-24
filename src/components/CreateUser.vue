@@ -124,7 +124,7 @@ export default {
         };
         try {
           await axios
-            .post(`http://localhost:4002/user/`, this.user)
+            .post(`/user/`, this.user)
             .then(res => {
               this.$router.push({
                 name: "ShowUser",

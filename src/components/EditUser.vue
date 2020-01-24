@@ -78,7 +78,7 @@ export default {
   },
   created() {
     axios
-      .get("http://localhost:4002/user/" + this.$route.params.id)
+      .get(`/user/` + this.$route.params.id)
       .then(response => {
         let res = response.data;
         this.name = res.name;
@@ -124,7 +124,7 @@ export default {
           email: this.email
         };
         axios
-          .put(`http://localhost:4002/user/` + this.$route.params.id, this.user)
+          .put(`/user/` + this.$route.params.id, this.user)
           .then(response => {
             this.$router.push("/show-user/" + this.$route.params.id);
           })

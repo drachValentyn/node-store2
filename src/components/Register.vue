@@ -94,7 +94,7 @@ export default {
         };
 
         axios
-          .post(`http://localhost:4002/api/auth/register/`, this.register)
+          .post(`/api/auth/register/`, this.register)
           .then(response => {
             this.$router.push({
               name: "Login"

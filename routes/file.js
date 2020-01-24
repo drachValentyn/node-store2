@@ -6,12 +6,28 @@ require('../config/passport')(passport);
 const Image = require('../models/File');
 const upload = require("../multer/storage");
 
-router.get('/', passport.authenticate('jwt', { session: false}), function(req, res) {
+const getToken = headers => {
+  if (headers && headers.authorization) {
+    const parted = headers.authorization.split(" ");
+    if (parted.length === 2) {
+      return parted[1];
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
+router.get('/',
+  passport.authenticate('jwt', { session: false}),
+  (req, res) => {
   let token = getToken(req.headers);
   if (token) {
     Image.find({
       user: req.query.user
-    },function (err, images) {
+    },
+      function (err, images) {
       if (err) return next(err);
       res.json(images);
     });
@@ -21,14 +37,15 @@ router.get('/', passport.authenticate('jwt', { session: false}), function(req, r
 });
 
 
-router.post("/", passport.authenticate('jwt', { session: false}), function(req, res) {
+router.post('/', passport.authenticate('jwt', { session: false}),
+  (req, res) => {
   let token = getToken(req.headers);
-  if (token) {
-    upload(req, res, function (err) {
-      if(req.file == null || req.file == undefined || req.file == ""){
+    if (token) {
+      upload(req, res, function (err) {
+      if(req.file === null || req.file === undefined || req.file === ""){
         res.json('No Image Set');
-      }else{
-        if (err) {
+      } else {
+        if (err){
           console.log(err);
         }else{
           let image = new Image();
@@ -47,8 +64,8 @@ router.post("/", passport.authenticate('jwt', { session: false}), function(req, 
 });
 
 
-router.delete("/:id", (req,res)=>{
-  let query= {image:req.params.id};
+router.delete("/:id", (req, res)=>{
+  let query= { image:req.params.id };
   Image.deleteOne(query, (err)=>{
     if(err){
       console.log(err);

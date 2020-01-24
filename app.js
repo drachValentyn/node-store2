@@ -1,11 +1,21 @@
+const path = require("path");
 const express = require("express");
 const app = express();
-const path = require("path");
-const morgan = require("morgan");
+const compression = require("compression");
 const bodyParser = require("body-parser");
-const engines = require("consolidate");
+const morgan = require("morgan");
 const cors = require("cors");
+const engines = require("consolidate");
+require("dotenv").config();
 
+//create route
+const user = require("./routes/user");
+const auth = require("./routes/auth");
+const upload = require("./routes/file");
+const expFile = require("./routes/export");
+//const chart = require("./routes/chart");
+
+//add mongodb
 const mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
 mongoose
@@ -18,24 +28,34 @@ mongoose
   .then(() => console.log("connection successful")) // eslint-disable-line no-console
   .catch(err => console.error(err)); // eslint-disable-line no-console
 
-const user = require("./routes/user");
-const auth = require("./routes/auth");
-const upload = require("./routes/file");
-const expFile = require("./routes/export");
-const chart = require("./routes/chart");
 
-app.use(morgan("combined"));
-app.use(bodyParser.json());
+//middleware express
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
+app.use(compression());
 app.use(cors());
+app.use(morgan("dev"));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: "false" }));
 app.use(express.static(path.join(__dirname, "dist")));
+app.use("/", express.static(path.join(__dirname, "dist")));
+
+//uploads Multer folder
+app.use(express.static("./uploads"));
 
 app.use("/users", express.static(path.join(__dirname, "dist")));
 app.use("/user", user);
 app.use("/api/auth", auth);
 app.use("/uploads", upload);
 app.use("/exports", expFile);
-app.use("/charts", chart);
+//app.use("/charts", chart);
 
 //if the files size increase more than 500KB
 app.use((err, req, res, next) => {

@@ -90,7 +90,7 @@ export default {
       "jwtToken"
     );
     axios
-      .get(`http://localhost:4002/user`)
+      .get(`/user`)
       .then(response => {
         this.users = response.data;
       })
@@ -107,7 +107,7 @@ export default {
     },
     async exportCsv() {
       await axios
-        .get(`http://localhost:4002/exports`)
+        .get(`/exports`)
         .then(response => {
           this.exportMessage = `File ${response.data} succesful created!`;
           setTimeout(() => {
@@ -162,7 +162,7 @@ export default {
     },
     sendImport(file) {
       axios
-        .post(`http://localhost:4002/exports`, file)
+        .post(`/exports`, file)
         .then(response => {
           console.log(response);// eslint-disable-line no-console
           if (response.data.errmsg) {

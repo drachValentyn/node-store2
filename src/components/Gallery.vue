@@ -1,7 +1,13 @@
-/* eslint-disable no-console */
 <template>
   <v-row>
-    <v-col cols="12" sm="6" offset-sm="3">
+
+    <v-col cols="12" class="text-center" v-if="user.loggedIn">
+      <v-btn text to="/upload">
+        Upload images
+      </v-btn>
+    </v-col>
+
+    <v-col cols="10" sm="6" class="mx-auto">
       <v-card>
         <v-container fluid>
           <v-row>
@@ -13,8 +19,7 @@
             >
               <v-card flat tile class="d-flex">
                 <v-img
-                  :src="image.image"
-                  :lazy-src="image.image"
+                  :src="require('../../uploads/' + image.image)"
                   aspect-ratio="1"
                   class="grey lighten-2"
                 >
@@ -82,14 +87,13 @@ export default {
   methods: {
     getImages() {
       axios
-        .get(`http://localhost:4002/uploads`, {
+        .get(`/uploads`, {
           params: {
             user: this.user.userId
           }
         })
         .then(response => {
           this.images = response.data;
-          console.log(this.images);// eslint-disable-line no-console
         })
         .catch(e => {
           this.errors.push(e);
@@ -109,4 +113,3 @@ export default {
 };
 </script>
 
-<style scoped></style>
