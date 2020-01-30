@@ -6,7 +6,7 @@ const multer = require("multer");
 //that will be uploaded
 let storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads/')
+    cb(null, './uploads/img/')
   },
   filename: function (req, file, cb) {
     //cb(null, file.originalname)
@@ -16,8 +16,8 @@ let storage = multer.diskStorage({
 
 //management of the storage and the file that will be uploaded
 //.single expects the name of the file input field
-const upload= multer({storage: storage}).single("file");
+const upload = multer({storage: storage}).single("file");
 
-module.exports= upload;
+module.exports = upload;
 
 // this is the config file for multer
