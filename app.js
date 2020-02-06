@@ -19,6 +19,7 @@ const auth = require('./routes/auth');
 const upload = require('./routes/file');
 const expFile = require('./routes/export');
 // const chart = require('./routes/chart');
+const video = require('./routes/video');
 
 // add mongodb
 mongoose.Promise = require('bluebird');
@@ -52,6 +53,27 @@ app.use(bodyParser.urlencoded({ extended: 'false' }));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/', express.static(path.join(__dirname, 'dist')));
 
+
+// add worker
+
+// function runService(workerData) {
+//   return new Promise((resolve, reject) => {
+//     const worker = new Worker('./workers/worker.js', { workerData });
+//     worker.on('message', resolve);
+//     worker.on('error', reject);
+//     worker.on('exit', (code) => {
+//       if (code !== 0)
+//         reject(new Error(`Worker stopped with exit code ${code}`));
+//     })
+//   })
+// }
+// async function run(result) {
+//   result = await runService('abc.js');
+//   return result;
+// }
+
+
+
 // uploads Multer folder
 app.use(express.static('./uploads'));
 
@@ -61,27 +83,10 @@ app.use('/api/auth', auth);
 app.use('/uploads', upload);
 app.use('/exports', expFile);
 // app.use('/charts', chart);
+ app.use('/video', video);
 
-// add worker
 
-function runService(workerData) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker('./workers/worker.js', { workerData });
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0)
-        reject(new Error(`Worker stopped with exit code ${code}`));
-    })
-  })
-}
 
-async function run() {
-  const result = await runService('abc.js');
-  console.log(result);
-}
-
-run().catch(err => console.error(err));
 
 // if the files size increase more than 500KB
 app.use((err, req, res) => {

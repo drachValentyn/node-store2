@@ -4,7 +4,7 @@ const router = express.Router();
 const passport = require('passport');
 require('../config/passport')(passport);
 const Image = require('../models/File');
-const upload = require("../multer/storage");
+const upload = require('../multer/storage');
 
 const getToken = headers => {
   if (headers && headers.authorization) {
@@ -23,7 +23,7 @@ router.get('/',
   passport.authenticate('jwt', { session: false}),
   (req, res) => {
   let token = getToken(req.headers);
-  if (token) {
+  if (token) {    
     Image.find({
       user: req.query.user
     },

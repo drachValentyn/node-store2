@@ -40,7 +40,24 @@
 
             <v-btn color="primary" @click.stop="register()">Register</v-btn>
           </v-card-actions>
+
         </v-card>
+
+        <v-snackbar
+          v-model="snackbar"
+          :timeout="timeout"
+          color="error"
+          >
+          {{ error }}
+        <v-btn
+          color="black"
+          text
+          @click="snackbar = false"
+        >
+        Close
+        </v-btn>
+      </v-snackbar> 
+
       </v-flex>
     </v-layout>
   </v-container>
@@ -52,6 +69,9 @@ import axios from "axios";
 export default {
   data() {
     return {
+      snackbar: false,
+      error: '',
+      timeout: 5000,
       username: "",
       password: "",
       admin: {},
@@ -90,7 +110,10 @@ export default {
           })
           .catch(e => {
             console.log(e); // eslint-disable-line no-console
-            this.errors.push(e);
+            if (e.response.status === 401) {
+              this.error = 'Authentication failed. User not found.'
+              this.snackbar = true;
+            }
           });
       }
     },

@@ -110,7 +110,7 @@
             user: this.user.userId
           }
         })
-          .then(response => {
+          .then(response => {            
             this.images = response.data;
           })
           .catch(e => {

@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "ffmpeg": "0.0.4",
     "ffmpeg-stream": "^0.6.0",
     "json2csv": "^4.5.4",
     "migrate-mongo": "^7.0.1",
