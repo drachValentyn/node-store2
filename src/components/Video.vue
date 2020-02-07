@@ -4,13 +4,16 @@
       <v-card>
         <v-container fluid>
           <v-row dense>
-            <v-col cols="3">
+            <v-col cols="3" >
               <div class="add-button">
 
                 <p class="text-center"
                    v-if="loading">
-                  <strong>Uploading</strong>
-                  {{ loadingText }}
+                  <v-progress-circular
+                    :size="50"
+                    color="primary"
+                    indeterminate
+                  />
                 </p>
 
                 <v-btn
@@ -26,11 +29,46 @@
                   ref="uploadInput"
                   type="file"
                   name="file"
+                  accept="video/*"
                   class="image-input"
                   @change="updateUploadButton($event), insertVideo()">
               </div>
-            </v-col>
 
+
+              <div class="success" v-if="success_video">
+                {{success_video}} Uploaded Successfully
+              </div>
+
+              <div class="error" v-if="errors">
+                {{errors}}
+              </div>
+
+
+            </v-col>
+            <v-col
+              v-for="(video, i) of videos"
+              :key="i"
+              cols="3"
+            >
+              <v-card>
+                <v-playback :url="require('../../videos/' + video.video)"/>
+
+<!--                <div class="d-flex align-center justify-space-between">-->
+<!--                  <v-card-text v-text="video.video"/>-->
+
+<!--                  <v-btn-->
+<!--                    size="md"-->
+<!--                    color="error"-->
+<!--                    @click="deleteImage(image.image)"-->
+<!--                    class="cursor mr-4">-->
+<!--                    Remove-->
+<!--                  </v-btn>-->
+<!--                </div>-->
+
+
+
+              </v-card>
+            </v-col>
           </v-row>
         </v-container>
       </v-card>
@@ -46,10 +84,11 @@
     name: "Video",
     data() {
       return {
-        errors: [],
+        errors: '',
         file: '',
-        loadingText: '',
-        loading: false
+        loading: false,
+        success_video: false,
+        videos: [],
       }
     },
     computed: {
@@ -61,10 +100,9 @@
       axios.defaults.headers.common['Authorization'] = localStorage.getItem(
         'jwtToken'
       );
-      //this.insertVideo()
+      this.getVideo()
     },
     methods: {
-
       selectVideo () {
         this.$refs.uploadInput.click()
       },
@@ -86,39 +124,41 @@
           }
         })
           .then(response => {
-
-            console.log(response);
-            
+            this.success_video = response.data;
+            this.loading = false;
             setTimeout(() => {
-              this.loading = false;
-            }, 900)
+              this.$refs.uploadInput.value = ''
+              this.getVideos();
+            }, 900);
+
           })
           .catch(e => {
             this.errors.push(e)
           })
       },
-      // getVideo () {
-      //   axios.get(`/video`, {
-      //     params: {
-      //       user: this.user.userId
-      //     }
-      //   })
-      //     .then(response => {
-      //       console.log(response);
-      //       console.log(this.user.userId);
-      //       })
-      //     .catch(e => {
-      //       this.errors.push(e);
-      //       if (e.response.status === 401) {
-      //         this.$router.push({
-      //           name: 'Login'
-      //         })
-      //       }
-      //     })
-      // },
-           
-    
+      getVideo () {
+        axios.get(`/video`, {
+          params: {
+            user: this.user.userId
+          }
+        })
+          .then(response => {
+            //console.log(response);
+            this.videos = response.data;
+            })
+          .catch(e => {
+            this.errors.push(e);
+            if (e.response.status === 401) {
+              this.$router.push({
+                name: 'Login'
+              })
+            }
+          })
+      },
+
+
     }
 
   }
 </script>
+

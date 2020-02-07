@@ -70,6 +70,7 @@
 
               </v-card>
             </v-col>
+
           </v-row>
         </v-container>
       </v-card>
@@ -110,7 +111,7 @@
             user: this.user.userId
           }
         })
-          .then(response => {            
+          .then(response => {
             this.images = response.data;
           })
           .catch(e => {
@@ -167,7 +168,7 @@
   }
 </script>
 
-<style scoped>
+<style>
   .image-input {
     position: absolute;
     top: 0;

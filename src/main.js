@@ -4,6 +4,8 @@ import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
 import axios from "axios";
+import vPlayBack from 'v-playback'
+Vue.use(vPlayBack);
 
 Vue.config.productionTip = false;
 axios.defaults.baseURL = "http://localhost:4001";

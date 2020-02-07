@@ -1,6 +1,5 @@
 const path = require('path');
 const express = require('express');
-
 const app = express();
 const compression = require('compression');
 const bodyParser = require('body-parser');
@@ -9,7 +8,15 @@ const cors = require('cors');
 const engines = require('consolidate');
 const bluebird = require('bluebird');
 require('dotenv').config();
-const { Worker } = require('worker_threads');
+
+
+const stripe = require('stripe')('sk_test_5mK9ByWUwDyCBDXfoLCdotPa00TbbEKsDz');
+
+stripe.customers.create({
+  email: 'valentynd91@gmail.com',
+})
+  .then(customer => console.log(customer.id))
+  .catch(error => console.error(error));
 
 // create route
 
@@ -53,27 +60,6 @@ app.use(bodyParser.urlencoded({ extended: 'false' }));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/', express.static(path.join(__dirname, 'dist')));
 
-
-// add worker
-
-// function runService(workerData) {
-//   return new Promise((resolve, reject) => {
-//     const worker = new Worker('./workers/worker.js', { workerData });
-//     worker.on('message', resolve);
-//     worker.on('error', reject);
-//     worker.on('exit', (code) => {
-//       if (code !== 0)
-//         reject(new Error(`Worker stopped with exit code ${code}`));
-//     })
-//   })
-// }
-// async function run(result) {
-//   result = await runService('abc.js');
-//   return result;
-// }
-
-
-
 // uploads Multer folder
 app.use(express.static('./uploads'));
 
@@ -83,9 +69,7 @@ app.use('/api/auth', auth);
 app.use('/uploads', upload);
 app.use('/exports', expFile);
 // app.use('/charts', chart);
- app.use('/video', video);
-
-
+app.use('/video', video);
 
 
 // if the files size increase more than 500KB
