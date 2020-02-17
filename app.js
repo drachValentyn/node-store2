@@ -7,18 +7,11 @@ const morgan = require('morgan');
 const cors = require('cors');
 const engines = require('consolidate');
 const bluebird = require('bluebird');
-require('dotenv').config();
 
+if (process.env.NODE_ENV !== 'production'){
+  require('dotenv').config();
+}
 
-const stripe = require('stripe')('sk_test_5mK9ByWUwDyCBDXfoLCdotPa00TbbEKsDz');
-
-stripe.customers.create({
-  email: 'valentynd91@gmail.com',
-})
-  .then(customer => console.log(customer.id))
-  .catch(error => console.error(error));
-
-// create route
 
 const mongoose = require('mongoose');
 const user = require('./routes/user');
@@ -27,6 +20,7 @@ const upload = require('./routes/file');
 const expFile = require('./routes/export');
 // const chart = require('./routes/chart');
 const video = require('./routes/video');
+const purchase = require('./routes/purchase')
 
 // add mongodb
 mongoose.Promise = require('bluebird');
@@ -70,6 +64,7 @@ app.use('/uploads', upload);
 app.use('/exports', expFile);
 // app.use('/charts', chart);
 app.use('/video', video);
+app.use('/purchase', purchase);
 
 
 // if the files size increase more than 500KB

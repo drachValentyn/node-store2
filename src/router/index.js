@@ -1,14 +1,15 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import UserList from "@/components/UserList";
-import CreateUser from "@/components/CreateUser";
-import EditUser from "@/components/EditUser";
-import ShowUser from "@/components/ShowUser";
-import Login from "@/components/Login";
-import Register from "@/components/Register";
+import UserList from "@/components/user/UserList";
+import CreateUser from "@/components/user/CreateUser";
+import EditUser from "@/components/user/EditUser";
+import ShowUser from "@/components/user/ShowUser";
+import Login from "@/components/auth/Login";
+import Register from "@/components/auth/Register";
 import Gallery from "@/components/Gallery";
 import UploadImages from "@/components/UploadImages";
 import Video from "@/components/Video";
+import Purchase from "@/components/Stripe";
 
 Vue.use(VueRouter);
 
@@ -57,6 +58,11 @@ const routes = [
     path: "/video",
     name: "Video",
     component: Video
+  },
+  {
+    path: "/purchase",
+    name: "Purchase",
+    component: Purchase
   }
 ];
 

@@ -13,8 +13,11 @@
         <router-link to="/upload" tag="span" class="pointer mr-3"
           >Upload media</router-link
         >
-        <router-link to="/video" tag="span" class="pointer mr-5"
+        <router-link to="/video" tag="span" class="pointer mr-3"
           >Video</router-link
+        >
+        <router-link to="/purchase" tag="span" class="pointer mr-5"
+          >Purchase</router-link
         >
 
         <v-btn tag="span" text class="pointer 111" @click="logout()">
