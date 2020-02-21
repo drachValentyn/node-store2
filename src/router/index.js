@@ -9,7 +9,8 @@ import Register from "@/components/auth/Register";
 import Gallery from "@/components/Gallery";
 import UploadImages from "@/components/UploadImages";
 import Video from "@/components/Video";
-import Purchase from "@/components/Stripe";
+import Purchase from "@/components/stripe/Stripe";
+import CompletePurchase from "@/components/stripe/CompletePay";
 
 Vue.use(VueRouter);
 
@@ -63,6 +64,11 @@ const routes = [
     path: "/purchase",
     name: "Purchase",
     component: Purchase
+  },
+  {
+    path: "/complete_purchase",
+    name: "CompletePurchase",
+    component: CompletePurchase
   }
 ];
 

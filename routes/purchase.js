@@ -10,35 +10,47 @@ const stripe = require('stripe')(stripeSecretKey);
 
 router.post('/', function(req, res) {
 
-
-  fs.readFile('items.json', function(error, data) {
-    if (error) {
-      res.status(500).end()
-    } else {
-      const itemsJson = JSON.parse(data)
-      const itemsArray = itemsJson.music.concat(itemsJson.merch)
-      let total = 0
-      req.body.items.forEach(function(item) {
-        const itemJson = itemsArray.find(function(i) {
-          return i.id == item.id
-        })
-        total = total + itemJson.price * item.quantity
-      })
-
-      stripe.charges.create({
-        amount: total,
-        source: req.body.stripeTokenId,
-        currency: 'usd'
-      }).then(function() {
-        console.log('Charge Successful')
-        res.json({ message: 'Successfully purchased items' })
-      }).catch(function() {
-        console.log('Charge Fail')
-        res.status(500).end()
-      })
+  const newCharge = {
+    amount: 23500,
+    currency: "usd",
+    source: req.body.token_from_stripe, // obtained with Stripe.js on the client side
+    description: req.body.specialNote,
+    receipt_email: req.body.email,
+    shipping: {
+      name: req.body.name,
+      address: {
+        line1: req.body.address.street,
+        city: req.body.address.city,
+        state: req.body.address.state,
+        postal_code: req.body.address.zip,
+        country: 'US'
+      }
     }
-  })
+  };
 
-})
+  // Call the stripe objects helper functions to trigger a new charge
+  stripe.charges.create(newCharge, function(err, charge) {
+    // send response
+    if (err){
+      console.error(err);
+      res.json({ error: err, charge: false });
+    } else {
+      // send response with charge data
+      res.json({ error: false, charge: charge });
+    }
+  });
+
+});
+
+// Route to get the data for a charge filtered by the charge's id
+router.get('/:id', function(req, res){
+  stripe.charges.retrieve(req.params.id, function(err, charge) {
+    if (err){
+      res.json({ error: err, charge: false });
+    } else {
+      res.json({ error: false, charge: charge });
+    }
+  });
+});
 
 module.exports = router;
