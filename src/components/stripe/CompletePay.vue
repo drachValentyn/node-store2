@@ -1,24 +1,27 @@
 <template>
-    <div class='container content'>
-        <br>
-        <h3 style='color: white;'>Order complete!</h3>
+    <div class='container'>
 
-        <p>Congratulations! Your order for Sticks will be shipped out within 1-2 business days.  <a href=''>support@stickly.com</a>. We sent you a confirmation email for your records. Thanks so much!</p>
+        <h3>Order complete!</h3>
+
+        <p>Congratulations! Your order for Sticks will be shipped out within 1-2 business days</p>
 
         <div v-if='orderDetails'>
             <dl>
                 <dt>Order Number</dt>
                 <dd>{{ orderDetails.id }}</dd>
+                <dt>Name</dt>
+                <dd>{{ orderDetails.shipping.name }}</dd>
+                <dt>Email</dt>
+                <dd>{{ orderDetails.receipt_email }}</dd>
                 <dt>Order Created</dt>
                 <dd>{{ orderDetails.created | moment }}</dd>
                 <dt>Payment Amount</dt>
                 <dd>{{ orderDetails.amount | currency }}</dd>
                 <dt>Shipping Address</dt>
-                <dd>{{ orderDetails.shipping.address.line1 }}, {{ orderDetails.shipping.address.city }}, {{ orderDetails.shipping.address.state }} {{ orderDetails.shipping.address.postal_code }}</dd>
-                <dt>Engraving Text</dt>
-                <dd>{{ orderDetails.description }}</dd>
-                <dt>Email</dt>
-                <dd>{{ orderDetails.receipt_email }}</dd>
+                <dd>
+                  {{ orderDetails.shipping.address.line1 }},
+                  {{ orderDetails.shipping.address.city }}
+                </dd>
             </dl>
         </div>
     </div>
@@ -35,15 +38,17 @@ export default {
         };
     },
     created() {
-        var charge_id = this.$route.params.id;
-        axios.get(`/charge/${charge_id}`)
+        let charge_id = this.$route.params.id;
+      console.log(charge_id)
+        axios.get(`/purchase/${charge_id}`)
         .then((res) => {
+          console.log(res);
             this.orderDetails = res.data.charge;
         })
     },
     filters: {
         moment(date) {
-            return moment.unix(date).format('MMMM Do, YYYY - h:mm a');        
+            return moment.unix(date).format('MMMM Do, YYYY - h:mm a');
         },
         currency(amount) {
             return `${(amount/100).toFixed(2)}`
@@ -53,7 +58,7 @@ export default {
 </script>
 
 <style lang="scss">
-    dt { 
-        font-weight: bold; 
+    dt {
+        font-weight: bold;
     }
 </style>

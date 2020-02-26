@@ -1,10 +1,45 @@
 <template>
   <v-container>
+
+    <h2 class="title text-center">Bundle of Sticks</h2>
+
     <v-row class="align-stretch">
+
       <v-col cols="6">
+        <v-img src="https://cdn.scotch.io/2842/b7yhhuUPSGO1fEkMHD6P_sticks.jpeg"/>
+      </v-col>
+
+      <v-col cols="3">
+
+        <v-form>
+          <section class="row payment-form">
+
+            <div class="error red center-align white-text"></div>
+
+            <div class="col s12 card-element">
+              <label>Card Number</label>
+              <div id="card-number-element" class="input-value"></div>
+            </div>
+
+            <div class="col s6 card-element">
+              <label>Expiry Date</label>
+              <div id="card-expiry-element"></div>
+            </div>
+
+            <div class="col s6 card-element">
+              <label>CVC</label>
+              <div id="card-cvc-element"></div>
+            </div>
+
+          </section>
+
+        </v-form>
 
       </v-col>
+
       <v-col cols="3">
+        <v-text-field label="Amount" placeholder="Amount" outlined v-model="amount"/>
+
         <v-text-field label="Name" placeholder="First and Last" outlined v-model="name"/>
 
         <v-text-field label="Email" placeholder="Email address" outlined v-model="email"/>
@@ -13,242 +48,174 @@
 
         <v-text-field label="City" placeholder="San Francisco" outlined v-model="address.city"/>
 
-        <div id="card-element"></div>
-
-
-        <div class="help is-danger" v-if="cardCheckError">
-          <span>{{ cardCheckErrorMessage }}</span>
-        </div>
-
-        <v-spacer/>
-
         <v-btn
           x-large
           color="success"
-          @click="validate"
+          :loading="loading"
+          @click="placeOrderButtonPressed"
         >
-          <span v-if="cardCheckSending">
-            <i class="fa fa-btn fa-spinner fa-spin"></i>
-            Ordering...
-          </span>
-          <span v-else>Place Order</span>
+          Place Order
         </v-btn>
 
       </v-col>
 
     </v-row>
+
+    <v-snackbar
+      v-model="snackbar"
+      color="error"
+    >
+      {{stripeValidationError}}
+      <v-btn
+        color="black"
+        text
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
+
   </v-container>
 </template>
 
 <script>
   import axios from "axios";
 
-  import {CardNumber, CardExpiry, CardCvc} from 'vue-stripe-elements-plus'
-
   export default {
-    //props: ['stripe', 'options'],
     name: "Purchase",
     data() {
       return {
-        // fieldsstripe
-
         stripeAPIToken: 'pk_test_QJHfCb8Wj3u4SAONBJA53w9i00pJkL9rbJ',
-        stripe: '',
+        stripe: null,
         elements: '',
-        card: '',
-        cardElement:'',
-
+        cardNumberElement: null,
+        cardExpiryElement: null,
+        cardCVCElement: null,
+        stripeValidationError: null,
         name: "John Snow",
         email: "snow@mail.com",
-        specialNote: "This is the text to put on the bundle of sticks",
+        amount: "25",
         address: {
           street: "123 Something Lane",
           city: "San Francisco",
-          state: "CA",
-          zip: "94607"
         },
-
-        // card: {
-        //   number: "4242424242424242",
-        //   cvc: "123",
-        //   exp_month: "01",
-        //   exp_year: "22"
-        // },
-        // validation
-        cardNumberError: null,
-        cardCvcError: null,
-        cardMonthError: null,
-        cardYearError: null,
-        cardCheckSending: false,
-        cardCheckError: false,
-        cardCheckErrorMessage: ""
+        snackbar: false,
+        loader: null,
+        loading: false,
       };
     },
-    components: {CardNumber, CardExpiry, CardCvc},
-    watch: {
-      number() {
-        this.update()
-      },
-      expiry() {
-        this.update()
-      },
-      cvc() {
-        this.update()
-      }
-    },
     mounted() {
-      this.includeStripe('js.stripe.com/v3/', function () {
-        this.configureStripe();
-      }.bind(this));
+      this.configureStripe();
     },
     methods: {
-      /*Includes Stripe.js dynamically*/
-      includeStripe(URL, callback) {
-        let documentTag = document, tag = 'script',
-          object = documentTag.createElement(tag),
-          scriptTag = documentTag.getElementsByTagName(tag)[0];
-        object.src = '//' + URL;
-        if (callback) {
-          object.addEventListener('load', function (e) {
-            callback(null, e);
-          }, false);
-        }
-        scriptTag.parentNode.insertBefore(object, scriptTag);
-      },
-      /*Configures Stripe by setting up the elements and creating the card element.*/
+
       configureStripe() {
         this.stripe = Stripe(this.stripeAPIToken);
-        this.elements = this.stripe.elements();
-        this.card = this.elements.create('card', {
-          'style': {
-            'base': {
-              'fontSize': '16px',
-              'color': '#C1C7CD',
-            },
-            'invalid': {
-              'color': 'red',
-            },
+        this.createAndMountFormElements()
+      },
+
+      createAndMountFormElements() {
+        let elements = this.stripe.elements();
+
+        this.cardNumberElement = elements.create("cardNumber");
+        this.cardNumberElement.mount("#card-number-element");
+
+        this.cardNumberElement = elements.create("cardExpiry");
+        this.cardNumberElement.mount("#card-expiry-element");
+
+        this.cardNumberElement = elements.create("cardCvc");
+        this.cardNumberElement.mount("#card-cvc-element");
+
+
+        this.cardNumberElement.on("change", this.setValidationError);
+        this.cardExpiryElement.on("change", this.setValidationError);
+        this.cardCvcElement.on("change", this.setValidationError);
+      },
+
+      setValidationError(event) {
+        this.stripeValidationError = event.error ? event.error.message : "";
+      },
+
+      placeOrderButtonPressed() {
+        this.stripe.createToken(this.cardNumberElement).then(result => {
+          if (result.error) {
+            this.stripeValidationError = result.error.message;
+          } else {
+            let stripeObject = {
+              amount: this.amount * 100,
+              name: this.name,
+              email: this.email,
+              address: this.address,
+              source: result.token
+            };
+
+            this.saveDataToMongo(stripeObject);
+
+          }
+        })
+      },
+
+      saveDataToMongo(stripeObject) {
+        this.loading = true;
+        axios.post(`/purchase`, stripeObject).then(res => {
+          if (res.data.error) {
+            this.stripeValidationError = res.data.error.raw.message;
+          } else {
+            console.log(res);
+            this.loading = false;
+            this.$router.push({
+              path: `complete_purchase/${res.data.charge.id}`
+            });
           }
         });
-        this.card.mount('#card-element');
-        this.cardElement = this.elements.getElement('card');
-      },
-
-      validate(){
-        console.log('click');
-          var request = {
-            name: this.name,
-            email: this.email,
-            engravingText: this.engravingText,
-            address: this.address,
-            card: this.cardElement,
-          };
-          console.log(request);
-          this.stripe.createToken(request).then(function(result) {
-            console.log(result)
-          });
-
-      },
-
-      update() {
-        this.complete = this.number && this.expiry && this.cvc;
-        // field completed, find field to focus next
-        if (this.number) {
-          if (!this.expiry) {
-            this.$refs.cardExpiry.focus()
-          } else if (!this.cvc) {
-            this.$refs.cardCvc.focus()
-          }
-        } else if (this.expiry) {
-          if (!this.cvc) {
-            this.$refs.cardCvc.focus()
-          } else if (!this.number) {
-            this.$refs.cardNumber.focus()
-          }
-        }
-        // no focus magic for the CVC field as it gets complete with three
-        // numbers, but can also have four
-      },
-      // createToken() {
-      //   this.cardCheckError = false;
-      //   // window.Stripe.setPublishableKey(this.stripeKey);
-      //   stripe.createToken(this.card)
-      //     .then((res) => {
-      //       console.log(res);
-      //       this.stripeResponseHandler(res);
-      //     });
-      //   this.cardCheckSending = true;
-      // },
-      stripeResponseHandler(status, response) {
-        this.cardCheckSending = false;
-        if (response.error) {
-          this.cardCheckErrorMessage = response.error.message;
-          this.cardCheckError = true;
-
-          console.error(response.error);
-        } else {
-          //token to create a charge on our server
-          let token_from_stripe = response.id;
-
-          let request = {
-            name: this.name,
-            email: this.email,
-            engravingText: this.engravingText,
-            address: this.address,
-            card: this.card,
-            token_from_stripe
-          };
-
-          //Send to our server
-          axios.post(`/purchase`, request).then(res => {
-            let error = res.data.error;
-            let charge = res.data.charge;
-            if (error) {
-              console.error(error);
-            } else {
-              this.$router.push({
-                path: `order-complete/${charge.id}`
-              });
-            }
-          });
-        }
       }
+
     }
   };
 </script>
 
 
 <style scoped lang="scss">
-  h2 {
-    text-decoration: underline;
+
+  .payment-form {
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 5px;
+    flex-direction: column;
+
+    h5 {
+      margin: 0;
+      padding: 10px;
+      font-size: 1.2rem;
+    }
   }
 
-  #card-element{
-    margin-bottom: 30px;
-    border: 1px solid rgba(0, 0, 0, 0.42);
-    border-radius: 4px;
-    padding: 15px;
+  .card-element {
+    margin-top: 5px;
   }
 
-  .textarea:not([rows]) {
-    max-height: 110px;
-    min-height: 110px;
+  #card-number-element,
+  #card-expiry-element,
+  #card-cvc-element {
+    background: white;
+    padding: 5px;
+    border: 1px solid #ececec;
   }
 
-  .container {
-    margin-bottom: 30px;
+  .place-order-button-block {
+    margin: 10px 0;
   }
 
-  .column > img {
-    margin-top: 60px;
-  }
-
-  .button-field {
+  .custom-loader {
+    animation: loader 1s infinite;
     display: flex;
-    justify-content: center;
   }
 
-  #left-line {
-    margin-top: 27px;
+  @keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>

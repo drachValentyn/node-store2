@@ -12,7 +12,6 @@ if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
 }
 
-
 const mongoose = require('mongoose');
 const user = require('./routes/user');
 const auth = require('./routes/auth');

@@ -66,7 +66,7 @@ const routes = [
     component: Purchase
   },
   {
-    path: "/complete_purchase",
+    path: "/complete_purchase/:id",
     name: "CompletePurchase",
     component: CompletePurchase
   }
