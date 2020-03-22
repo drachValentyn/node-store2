@@ -8,18 +8,22 @@ const cors = require('cors');
 const engines = require('consolidate');
 const bluebird = require('bluebird');
 
-if (process.env.NODE_ENV !== 'production'){
+if (process.env.NODE_ENV !== 'prod'){
   require('dotenv').config();
 }
+// if(process.env.NODE_ENV !== 'test') {
+//   //morgan для вывода логов в консоль
+//   app.use(morgan('combined')); //'combined' выводит логи в стиле apache
+// }
 
 const mongoose = require('mongoose');
-const user = require('./routes/user');
-const auth = require('./routes/auth');
-const upload = require('./routes/file');
-const expFile = require('./routes/export');
+const user = require('./controllers/routes/user');
+const auth = require('./controllers/routes/auth');
+const upload = require('./controllers/routes/file');
+const expFile = require('./controllers/routes/export');
 // const chart = require('./routes/chart');
-const video = require('./routes/video');
-const purchase = require('./routes/purchase')
+const video = require('./controllers/routes/video');
+const purchase = require('./controllers/routes/purchase');
 
 // add mongodb
 mongoose.Promise = require('bluebird');

@@ -2,10 +2,10 @@ const fs = require('fs');
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-require('../config/passport')(passport);
+require('../../config/passport')(passport);
 const {Worker, isMainThread} = require('worker_threads');
 const Video = require('../models/Video');
-const upload = require('../multer/storageVideo');
+const upload = require('../../multer/storageVideo');
 
 
 const getToken = headers => {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const passport = require("passport");
-require("../config/passport")(passport);
+require("../../config/passport")(passport);
 
 const getToken = headers => {
   if (headers && headers.authorization) {
@@ -18,11 +18,7 @@ const getToken = headers => {
 };
 
 /* GET ALL Users */
-router.get("/", passport.authenticate("jwt", { session: false }), function(
-  req,
-  res,
-  next
-) {
+router.get("/", passport.authenticate("jwt", { session: false }), function(req, res, next) {
   const token = getToken(req.headers);
   if (token) {
     User.find((err, user) => {
@@ -43,9 +39,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 /* SAVE User */
-router.post(
-  "/",
-  passport.authenticate("jwt", { session: false }),
+router.post("/", passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     const token = getToken(req.headers);
     if (token) {
@@ -61,9 +55,9 @@ router.post(
 
 /* UPDATE User */
 router.put("/:id", (req, res, next) => {
-  User.findByIdAndUpdate(req.params.id, req.body, (err, post) => {
+  User.findByIdAndUpdate(req.params.id, req.body, { new: true }, (err, post) => {
     if (err) return next(err);
-    res.json(post);
+    res.json({ post, message: 'User updated!' });
   });
 });
 
@@ -71,7 +65,7 @@ router.put("/:id", (req, res, next) => {
 router.delete("/:id", (req, res, next) => {
   User.findByIdAndRemove(req.params.id, req.body, (err, post) => {
     if (err) return next(err);
-    res.json(post);
+    res.json({post, message: 'User successfully deleted!'});
   });
 });
 

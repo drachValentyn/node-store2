@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-require("../config/passport")(passport);
+require("../../config/passport")(passport);
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 

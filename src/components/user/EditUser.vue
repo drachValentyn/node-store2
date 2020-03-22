@@ -126,6 +126,7 @@ export default {
         axios
           .put(`/user/` + this.$route.params.id, this.user)
           .then(response => {
+            console.log(response)
             this.$router.push("/show-user/" + this.$route.params.id);
           })
           .catch(e => {
